@@ -2,6 +2,8 @@
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
 import pandas as pd
+import numpy as np
+import math
 import re
 from pandas import ExcelWriter
 from pandas import ExcelFile
@@ -64,4 +66,20 @@ output_path = "./outputs/student_master_all.xlsx"
 df1.to_excel(output_path)
 
 
+# %%
+file_path1 = './inputs/spring-2020-admission-data-full_18th May_iplu bhai.xlsx'
+df1 = pd.read_excel(file_path1, sheet_name='data-1589814860825')
+df1
+
+
+# %%
+scores = []
+for index, row in df1.iterrows():
+    marks = row["result"]
+    if isinstance(marks, float) and math.isnan(marks):
+        continue
+    split_marks = marks.split(',')
+    for mark in split_marks:
+        [sub, score] = mark.split('-')
+        df1.at[index, sub] = score
 # %%

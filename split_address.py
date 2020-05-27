@@ -8,8 +8,8 @@ from pandas import ExcelFile
 
 
 # %%
-file_path1 = './inputs/spring-2020-admission-data-full_18th May_iplu bhai.xlsx'
-df1 = pd.read_excel(file_path1, sheet_name='data-1589814860825')
+file_path1 = './inputs/Filled up BRACU ADMISSION (MISSING DATA)_19thMay_Iplu bhai.xlsx'
+df1 = pd.read_excel(file_path1, sheet_name='Sheet1')
 df1
 
 # %%
@@ -39,7 +39,7 @@ def get_permanent_district(row):
     return ''
 
 
-df1["permanent_address"] = df1["present_address"].astype('str')
+df1["permanent_address"] = df1["permanent_address"].astype('str')
 df1['permanent_district'] = df1.apply(
     lambda row: get_permanent_district(row), axis=1, result_type='expand')
 
@@ -70,7 +70,7 @@ def get_permanent_postcode(row):
     return matches[-1] if len(matches) else ''
 
 
-df1["permanent_address"] = df1["present_address"].astype('str')
+df1["permanent_address"] = df1["permanent_address"].astype('str')
 df1['permanent_postcode'] = df1.apply(
     lambda row: get_permanent_postcode(row), axis=1, result_type='expand')
 
@@ -78,7 +78,7 @@ df1['permanent_postcode'] = df1.apply(
 # %%
 df1["country"] = "Bangladesh"
 # %%
-output_path = "./outputs/student_master_all.xlsx"
+output_path = "./outputs/address_out.xlsx"
 df1.to_excel(output_path)
 
 
@@ -103,7 +103,7 @@ def split_present_address(row, part):
             cur = cur + 1
             address_arr.append(address_part)
         else:
-            other_parts = re.split(r'(\s+)*(?![^()]*\))', address_part)
+            other_parts = re.split(r'(\s+)+(?![^()]*\))', address_part)
             print(address_part)
             print(other_parts)
             for other_part in other_parts:
@@ -137,7 +137,7 @@ df1['present_address_filtered'] = df1['present_address_filtered'].str.replace(
 df1['present_address_filtered'] = df1['present_address_filtered'].str.replace(
     ".", " ")
 
-for i in range(0, 6):
+for i in range(0, 10):
     df1['present_address-' + str(i+1)] = df1.apply(
         lambda row: split_present_address(row, i), axis=1, result_type='expand')
 
@@ -164,7 +164,7 @@ def split_permanent_address(row, part):
             cur = cur + 1
             address_arr.append(address_part)
         else:
-            other_parts = re.split(r'(\s+)*(?![^()]*\))', address_part)
+            other_parts = re.split(r'(\s+)+(?![^()]*\))', address_part)
             for other_part in other_parts:
                 if len(address_arr[cur]) + len(other_part) <= char_limit:
                     address_arr[cur] = " ".join(
@@ -196,7 +196,7 @@ df1['permanent_address_filtered'] = df1['permanent_address_filtered'].str.replac
 df1['permanent_address_filtered'] = df1['permanent_address_filtered'].str.replace(
     ".", " ")
 
-for i in range(0, 6):
+for i in range(0, 10):
     df1['permanent_address-' + str(i+1)] = df1.apply(
         lambda row: split_permanent_address(row, i), axis=1, result_type='expand')
 
