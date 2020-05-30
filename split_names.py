@@ -7,14 +7,13 @@ from pandas import ExcelFile
 
 
 # %%
-file_path1 = './inputs/Filled up BRACU ADMISSION (MISSING DATA)_19thMay_Iplu bhai.xlsx'
-df1 = pd.read_excel(file_path1, sheet_name='Sheet1')
+file_path1 = './inputs/Missing Admission Data 2.xlsx'
+df1 = pd.read_excel(file_path1, sheet_name='data-1590564919570')
 df1
 
 
 # %%
 def get_first_name(row):
-    print(row)
     full_name = row["full_name"]
     split_name = full_name.split(" ")
     return split_name[0]
@@ -36,12 +35,12 @@ def get_last_name(row):
     return ""
 
 
-df1["full_name"] = df1["Name"]
-df1['Applicant First Name'] = df1.apply(
+df1["full_name"] = df1["student_name"]
+df1['Student First Name'] = df1.apply(
     lambda row: get_first_name(row), axis=1, result_type='expand')
-df1['Applicant Middle Name'] = df1.apply(
+df1['Student Middle Name'] = df1.apply(
     lambda row: get_middle_name(row), axis=1, result_type='expand')
-df1['Applicant Last Name'] = df1.apply(
+df1['Student Last Name'] = df1.apply(
     lambda row: get_last_name(row), axis=1, result_type='expand')
 
 # %%
@@ -77,7 +76,7 @@ def get_mother_last_name(row):
     return ''
 
 
-df1['mother_name'] = df1['Father Name']
+df1['mother_name'] = df1['father_name']
 df1['Father First Name'] = df1.apply(
     lambda row: get_mother_first_name(row), axis=1, result_type='expand')
 df1['Father Last Name'] = df1.apply(

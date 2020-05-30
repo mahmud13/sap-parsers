@@ -75,7 +75,7 @@ df1
 # %%
 scores = []
 for index, row in df1.iterrows():
-    marks = row["result"]
+    marks = row["Admission results"]
     if isinstance(marks, float) and math.isnan(marks):
         continue
     split_marks = marks.split(',')
