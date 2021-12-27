@@ -10,8 +10,8 @@ from pandas import ExcelFile
 
 
 # %%
-file_path1 = './inputs/AdmissionMaster_app-id-student-id-personal-details-ssc-hsc-o-a-undergrad result_22-01-2020.xlsx'
-df1 = pd.read_excel(file_path1, sheet_name='specific_student_data')
+file_path1 = './inputs/Fall-2020-Admission-Data-Full_19 Oct 20.xlsx'
+df1 = pd.read_excel(file_path1, sheet_name='data-1603090623775')
 df1
 
 # %%
@@ -75,7 +75,7 @@ df1
 # %%
 scores = []
 for index, row in df1.iterrows():
-    marks = row["Admission results"]
+    marks = row["result"]
     if isinstance(marks, float) and math.isnan(marks):
         continue
     split_marks = marks.split(',')

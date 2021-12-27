@@ -8,8 +8,8 @@ from pandas import ExcelFile
 
 
 # %%
-file_path1 = './inputs/Filled up BRACU ADMISSION (MISSING DATA)_19thMay_Iplu bhai.xlsx'
-df1 = pd.read_excel(file_path1, sheet_name='Sheet1')
+file_path1 = './inputs/Fall-2020-Admission-Data-Full_19 Oct 20.xlsx'
+df1 = pd.read_excel(file_path1, sheet_name='data-1603090623775')
 df1
 
 # %%
@@ -25,6 +25,7 @@ districts
 
 
 def get_permanent_district(row):
+    print(row['permanent_address'])
     address = row["permanent_address"].lower()
     print(address)
     for district in districts:

@@ -22,24 +22,11 @@ file_path1 = '/home/mahmud/Documents/All Factories12-05-2020.csv'
 published = pd.read_csv(file_path1, converters={
     'address': json.loads,
     'workers': json.loads,
-    'memberships': to_array,
-    'countries': to_array,
-    'types': to_array})
+    'types': to_array,
+    'memberships': to_array
+})
 published['uuid'] = published['uuid'].apply(appendkey)
 published = pd.io.json.json_normalize(published.to_dict('records'))
-published
-
-
-# %%
-
-onlyctg = '/home/mahmud/Documents/2020-05-27T11:07:37.451Z.csv'
-all = '/home/mahmud/Documents/2020-05-27T16:00:50.753Z.csv'
-all = pd.read_csv(all)
-onlyctg = pd.read_csv(onlyctg)[['Key']]
-ctg = onlyctg.merge(all, on='Key', how='left')
-ctg
-
-# %%
 
 
 def parseMember(tmp):
@@ -58,12 +45,38 @@ address_cols = ['address_plot', 'address_ward', 'address_block',
                 'address_village', 'address_district', 'address_postcode',
                 'address_roadname', 'address_upazilla', 'address_postoffice',
                 'address_roadnumber']
-# published['memberships'] = published['memberships'].apply(parseMember)
-result = published[['name', 'uuid', 'types', 'memberships',
-                    'workers_male', 'workers_female', 'workers_total'] + address_cols]
+published['memberships'] = published['memberships'].apply(parseMember)
+published = published[['name', 'uuid', 'types', 'memberships',
+                       'workers_male', 'workers_female', 'workers_total'] + address_cols]
 
-result
+
+master = pd.read_excel(
+    '/home/mahmud/Downloads/Combind Dataset for Research and Tech Team 28_May_2020.xlsx', sheet_name='Combind_3363')
+
+master['uuid'] = master['uuid'].apply(appendkey)
+merged = published.merge(master, left_on='uuid', right_on='uuid',
+                         indicator=True, how='left')
+
+print(merged[merged['_merge'] == 'left_only'][['uuid']])
+
+published['Official Phone'] = merged['officialcontact:official_phone']
+published['Official Contact Name'] = merged['official_contact_name']
+published['Official Contact Email '] = merged['official_contact_email']
+published['Official Contact Phone'] = merged['official_contact_phone']
+published['Respondent Name'] = merged['respondent_name']
+published['Respondent Phone'] = merged['respondent_phone']
+published['Respondent Email'] = merged['respondent:respondent_email']
+published['Market Type'] = merged['market_type']
+published['Export Status Type'] = merged['export_status']
+published['DB Serial'] = merged['DB_Serial'].astype(int)
+published
 # %%
+
+onlyctg = '/home/mahmud/Documents/2020-05-27T11:07:37.451Z.csv'
+all = '/home/mahmud/Documents/2020-05-27T12:25:03.893Z.csv'
+all = pd.read_csv(all)
+onlyctg = pd.read_csv(onlyctg)[['Key']]
+ctg = onlyctg.merge(all, on='Key', how='left')
 
 
 def getmembers(tmp):
@@ -77,10 +90,10 @@ def getmembers(tmp):
         return 4
 
 
-ctg['id'] = ctg['Serial']
+ctg['DB Serial'] = ctg['Serial']
 ctg['name'] = ctg['Factory Name']
 ctg['address_display'] = ctg['Display Address']
-ctg['uuid'] = ctg['Key'].apply(appendkey)
+ctg['uuid'] = ctg['Key']
 ctg['types'] = ctg['Factory Type'].str.split(', ')
 ctg['memberships'] = ctg.apply(getmembers, axis=1)
 ctg['workers_male'] = ctg['Workers Male']
@@ -94,58 +107,29 @@ for col in ctg:
                                 for p in col.split(' ', 1)]).replace(' ', '')
         ctg[ne_col_name] = ctg[col]
 
-result = result.append(ctg[['name', 'uuid', 'types', 'memberships',
-                            'workers_male', 'workers_female', 'workers_total'] + address_cols])
+nctg = ctg[['name', 'uuid', 'types', 'memberships',
+            'workers_male', 'workers_female', 'workers_total'] + address_cols]
+nctg['Official Phone'] = ctg['Official Contact Phone']
+nctg['Official Contact Phone'] = ctg['Official Contact Person Phone']
+nctg['Official Contact Name'] = ctg['Official Contact Person Name']
+nctg['Official Contact Email '] = ctg['Official Contact Person Email']
+nctg['Respondent Name'] = ctg['Respondent Name']
+nctg['Respondent Phone'] = ctg['Respondent Phone']
+nctg['Respondent Email'] = ctg['Respondent Email']
+nctg['Market Type'] = ctg['Market Type']
+nctg['Export Status Type'] = ctg['Export Status Type']
+nctg['DB Serial'] = ctg['DB Serial'].astype(int)
+nctg
 
-result
-
-# %%
-
-master = pd.read_excel(
-    '/home/mahmud/Downloads/Combind Dataset for Research and Tech Team 28_May_2020.xlsx', sheet_name='Combind_3363')
-
-master['uuid'] = master['uuid'].apply(appendkey)
-merged = result.merge(master, left_on='uuid', right_on='uuid',
-                      indicator=True, how='left')
-merged[merged['_merge'] == 'left_only'][['uuid']]
-
-
-# %%
-
-result['Official Phone'] = merged['officialcontact:official_phone']
-result['Official Contact Name'] = merged['official_contact_name']
-result['Official Contact Email '] = merged['official_contact_email']
-result['Official Contact Phone'] = merged['official_contact_phone']
-result['Respondent Name'] = merged['respondent_name']
-result['Respondent Phone'] = merged['respondent_phone']
-result['Respondent Email'] = merged['respondent:respondent_email']
-result['Market Type'] = merged['market_type']
-result['Export Status Type'] = merged['export_status']
-# %%
-coroactivepath = '/home/mahmud/Downloads/Final_Corona Map Data_11.5.20.csv'
-corona = pd.read_csv(coroactivepath)
-corona['uuid'] = corona['uuid'].apply(appendkey)
-corona = corona['uuid'].to_list()
-
-
-def isactive(id):
-    return id in corona
-
-
-moDF['COVID Active'] = moDF['uuid'].apply(isactive)
 
 # %%
 ng = '/home/mahmud/Downloads/R2_N.ganj 2nd Slot_195_MnE Review_20.2.20.xlsx'
 ng = pd.read_excel(ng, sheet_name='N.Ganj 2nd Slot_195')
-ng
-
-
-# %%
 ngn = pd.DataFrame()
-ngn['id'] = ng['serial']
+ngn['DB Serial'] = ng['serial']
 ngn['name'] = ng['Factory Name']
 ngn['address_display'] = ng['Address Display Address']
-ngn['uuid'] = ng['Meta Instance ID'].apply(appendkey)
+ngn['uuid'] = ng['Meta Instance ID']
 ngn['types'] = ng['Factory Type'].str.split(', ')
 ngn['memberships'] = ng.apply(getmembers, axis=1)
 ngn['workers_male'] = ng['Workers Male']
@@ -167,32 +151,37 @@ for col in ng:
                                 for p in col.split(' ', 1)]).replace(' ', '')
         ngn[ne_col_name] = ng[col]
 
-ngn['COVID Active'] = ngn['uuid'].apply(isactive)
-
-
-def getBrands(b):
-    if b == '.':
-        return ''
-    return b.split('|')
-
-
-ngn['brands'] = ng['Brands'].apply(getBrands)
+ngn
 
 # %%
-result = result.append(ngn)
+result = pd.concat([published, nctg, ngn])
 result
 
+# %%
+coroactivepath = '/home/mahmud/Downloads/Final_Corona Map Data_11.5.20.csv'
+corona = pd.read_csv(coroactivepath)
+corona['uuid'] = corona['uuid'].apply(appendkey)
+corona = corona['uuid'].to_list()
+
+
+def isactive(id):
+    return id in corona
+
+
+result['COVID Active'] = result['uuid'].apply(isactive)
+result
 
 # %%
+
+
 def strjoin(da):
-    return ", ".join(da)
+    return "|".join(da)
 
 
-nr = result.explode('brands')
-nnr = pd.DataFrame(nr['brands'].value_counts())
-nnr
+result['types'] = result['types'].apply(strjoin)
+
 output_path = "./outputs/brands.csv"
-nnr.to_csv(output_path)
+result.to_csv(output_path)
 
 # %%
 
